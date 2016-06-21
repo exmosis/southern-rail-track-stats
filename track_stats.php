@@ -3,13 +3,20 @@
 /** 
  * Really graunchy script to scrape the Southern Rail daily perfomance site and store the data
  * in an ongoing JSON file, stored by date and service. 
- * Feel free to fork and re-use. 
+ * Feel free to fork and re-use.
+ *
+ * Github home: https://github.com/exmosis/southern-rail-track-stats
+ * 
+ * Graham Lally <janus-trackstats@exmosis.net>
+ * Twitter: @6loss
+ * http://exmosis.net/
+ *
  */
 
 date_default_timezone_set('Europe/London');
 
 $stats_url = 'http://www.southernrailway.com/your-journey/performance-results/daily/';
-$stats_track_file = 'perfomance.csv';
+$stats_track_file = 'perfomance.json';
 
 // These are the fields we'll output to the CSV file (along with date), which need to match
 // the headers in the incoming table.
@@ -25,8 +32,9 @@ $headers = processHeaders($raw_table);
 $header_map = validateHeadersAndGetMap($output_headers, $headers);
 $data = processRawData($raw_table, $header_map);
 $headed_data = convertToKeyedArray($data, $header_map);
+$headed_data = stripPercentages($headed_data, array( 'PPM', 'Right Time' ));
 
-$yesterday_date_string = date("Y-m-d", time() - (60*60*24*3));
+$yesterday_date_string = date("Y-m-d", time() - (60*60*24));
 
 $existing_data = getExistingData($stats_track_file);
 $existing_data = attemptToAddNewData($existing_data, $yesterday_date_string, $headed_data);
@@ -89,6 +97,27 @@ function getExistingData($json_file) {
 	} else {
 		return array();
 	}
+}
+
+/**
+ * Remove percentage signs from data for requested columns.
+ */
+function stripPercentages($headed_data, $columns_to_check) {
+
+	$row_i = 0;
+
+	foreach ($headed_data as $data_row) {
+		foreach ($columns_to_check as $column) {
+			if (array_key_exists($column, $data_row)) {
+				$new_value = preg_replace('/%/', '', $data_row[$column]);
+				$headed_data[$row_i][$column] = $new_value;
+			}
+		}
+		$row_i++;
+	}
+
+	return $headed_data;
+
 }
 
 /**
