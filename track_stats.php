@@ -16,7 +16,7 @@
 date_default_timezone_set('Europe/London');
 
 $stats_url = 'http://www.southernrailway.com/your-journey/performance-results/daily/';
-$stats_track_file = 'perfomance.json';
+$stats_track_file = 'southern-rail-performance.json';
 
 // These are the fields we'll output to the CSV file (along with date), which need to match
 // the headers in the incoming table.
