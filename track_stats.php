@@ -15,7 +15,7 @@
 
 date_default_timezone_set('Europe/London');
 
-$stats_url = 'http://www.southernrailway.com/your-journey/performance-results/daily/';
+$stats_url = 'https://www.southernrailway.com/about-us/how-were-performing/daily-performance-report';
 $stats_track_file = 'southern-rail-performance.json';
 
 // These are the fields we'll output to the CSV file (along with date), which need to match
@@ -264,13 +264,16 @@ function processHeaders($raw_table) {
  * Strip raw HTML down to performance stats table element.
  */
 function getPerformanceTableHtml($raw_html) {
-	if (! preg_match('/<table\s+summary="Daily performance measures"/Us', $raw_html)) {
+	if (! preg_match('/<div class="c-performance-info" data-test="performance-info">/Us', $raw_html)) {
 		echo 'Cannot find "Daily performance measures" table - has HTML changed?. Dumping HTML and quitting:' . "\n";
 		print_r($raw_html);
 		exit;
 	}
 
-	$raw_table = preg_replace('/^.*(<table\s+summary="Daily performance measures".+<\/table>).*$/Us', '$1', $raw_html);
+  // Find the surrounding div
+	$raw_table = preg_replace('/^.*<div class="c-performance-info" data-test="performance-info">(.*)<\/div>.*$/Us', '$1', $raw_html);
+  // Strip out h3 and anything else between the table and the surrounding div
+	$raw_table = preg_replace('/^.*(<table(.*)<\/table>).*$/Us', '$1', $raw_table);
 
 	return $raw_table;
 }
