@@ -23,7 +23,7 @@ $stats_track_file = 'southern-rail-performance.json';
 $output_headers = array(
 			'Route',
 			'PPM',
-			'Right Time'
+			'On Time' // Changed April 2nd. NB March 31st stats show this as 100%. April fool?
 		  );
 
 $raw = getRawHtml($stats_url);
